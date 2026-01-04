@@ -8,6 +8,7 @@ A simple 2D roguelite game built with Godot Engine 4.3.
 - **Procedural Dungeon Generation**: Random rooms and corridors generated each run
 - **Player Stats**: Health system with UI display
 - **Simple Graphics**: Colored rectangles for rapid prototyping
+- **Web/HTML5 Export**: Play directly in your browser or on your phone!
 
 ## Project Structure
 
@@ -29,15 +30,29 @@ roguelite-game/
 
 ## How to Run
 
+### Option 1: Web Browser (Test on Phone!)
+
+1. **Start the web server**:
+   ```bash
+   ./serve.sh
+   ```
+
+2. **On your computer**: Open `http://localhost:8000`
+
+3. **On your phone**:
+   - Make sure you're on the same WiFi network
+   - Find your computer's IP address (`ip addr show` on Linux)
+   - Open `http://YOUR_IP:8000` in your phone's browser
+   - Example: `http://192.168.1.100:8000`
+
+### Option 2: Godot Editor
+
 1. **Open the project in Godot**:
    ```bash
    ./Godot_v4.3-stable_linux.x86_64 --path . --editor
    ```
 
-2. **Or run directly (headless mode won't work for games, but you can edit)**:
-   ```bash
-   ./Godot_v4.3-stable_linux.x86_64 --path .
-   ```
+2. **Press F5 to run**
 
 ## Controls
 
@@ -52,6 +67,7 @@ roguelite-game/
 - ✅ UI display
 - ✅ Camera following player
 - ✅ Game restart
+- ✅ HTML5/Web export for mobile testing
 
 ## Next Steps (Ideas for Expansion)
 
