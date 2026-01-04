@@ -8,9 +8,9 @@ script = ExtResource("1_touch")
 
 [node name="JoystickBase" type="ColorRect" parent="."]
 offset_left = 1070.0
-offset_top = 520.0
+offset_top = 560.0
 offset_right = 1230.0
-offset_bottom = 680.0
+offset_bottom = 720.0
 color = Color(0.2, 0.2, 0.2, 0.5)
 
 [node name="JoystickTip" type="ColorRect" parent="JoystickBase"]
