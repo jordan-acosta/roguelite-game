@@ -9,6 +9,7 @@ A simple 2D roguelite game built with Godot Engine 4.3.
 - **Player Stats**: Health system with UI display
 - **Simple Graphics**: Colored rectangles for rapid prototyping
 - **Web/HTML5 Export**: Play directly in your browser or on your phone!
+- **GitHub Pages Ready**: Host your game online for free!
 
 ## Project Structure
 
@@ -30,7 +31,23 @@ roguelite-game/
 
 ## How to Run
 
-### Option 1: Web Browser (Test on Phone!)
+### Option 1: Play Online (GitHub Pages) - EASIEST!
+
+**The game is hosted online!** Just visit:
+```
+https://YOUR_USERNAME.github.io/roguelite-game/
+```
+
+**To enable GitHub Pages:**
+1. Go to your GitHub repo → Settings → Pages
+2. Under "Source", select: **Deploy from a branch**
+3. Under "Branch", select: **main** and **/docs**
+4. Click **Save**
+5. Wait a few minutes, then visit the URL above
+
+Anyone can play your game without downloading anything!
+
+### Option 2: Local Web Server (Test on Phone)
 
 1. **Start the web server**:
    ```bash
@@ -45,7 +62,7 @@ roguelite-game/
    - Open `http://YOUR_IP:8000` in your phone's browser
    - Example: `http://192.168.1.100:8000`
 
-### Option 2: Godot Editor
+### Option 3: Godot Editor
 
 1. **Open the project in Godot**:
    ```bash

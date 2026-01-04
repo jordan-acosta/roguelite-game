@@ -35,3 +35,6 @@ godot.zip
 !build/web/*.html
 !build/web/*.png
 !export_presets.cfg
+
+# Keep docs folder (for GitHub Pages)
+!docs/
