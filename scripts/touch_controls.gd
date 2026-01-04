@@ -13,13 +13,14 @@ func _ready():
 	# Add to group so player can find us
 	add_to_group("touch_controls")
 
-	# Check if running on mobile/web
-	if OS.has_feature("web") or OS.has_feature("mobile"):
-		show()
-	else:
-		hide()
+	# Always show for now (we'll hide on desktop later)
+	show()
 
-	joystick_center = joystick_base.position + joystick_base.size / 2
+	# Calculate joystick center from ColorRect offsets
+	var base_width = joystick_base.offset_right - joystick_base.offset_left
+	var base_height = joystick_base.offset_bottom - joystick_base.offset_top
+	joystick_center = Vector2(joystick_base.offset_left + base_width / 2,
+	                           joystick_base.offset_top + base_height / 2)
 
 func _input(event):
 	if not visible:
