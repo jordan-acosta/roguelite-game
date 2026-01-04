@@ -36,10 +36,17 @@ func _input(event):
 			if dist < joystick_radius * 2:
 				touch_index = event.index
 		else:
+			# Touch released - reset joystick
 			if event.index == touch_index:
 				touch_index = -1
 				current_direction = Vector2.ZERO
-				joystick_tip.position = Vector2.ZERO
+				# Reset joystick tip to center of base
+				var base_width = joystick_base.offset_right - joystick_base.offset_left
+				var base_height = joystick_base.offset_bottom - joystick_base.offset_top
+				joystick_tip.offset_left = (base_width - 80) / 2
+				joystick_tip.offset_top = (base_height - 80) / 2
+				joystick_tip.offset_right = joystick_tip.offset_left + 80
+				joystick_tip.offset_bottom = joystick_tip.offset_top + 80
 
 	elif event is InputEventScreenDrag:
 		if event.index == touch_index:
@@ -49,7 +56,16 @@ func _input(event):
 			if distance > joystick_radius:
 				drag_pos = drag_pos.normalized() * joystick_radius
 
-			joystick_tip.position = drag_pos
+			# Update joystick tip position
+			var base_width = joystick_base.offset_right - joystick_base.offset_left
+			var base_height = joystick_base.offset_bottom - joystick_base.offset_top
+			var center_offset = Vector2((base_width - 80) / 2, (base_height - 80) / 2)
+
+			joystick_tip.offset_left = center_offset.x + drag_pos.x
+			joystick_tip.offset_top = center_offset.y + drag_pos.y
+			joystick_tip.offset_right = joystick_tip.offset_left + 80
+			joystick_tip.offset_bottom = joystick_tip.offset_top + 80
+
 			current_direction = drag_pos.normalized()
 
 func get_direction() -> Vector2:
