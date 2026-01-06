@@ -159,6 +159,17 @@ func create_wall(pos, wall_size):
 	collision.position = wall_size / 2  # Center the collision shape
 	wall.add_child(collision)
 
+	# DEBUG: Add semi-transparent red overlay showing collision bounds
+	var debug_visual = Polygon2D.new()
+	debug_visual.polygon = PackedVector2Array([
+		Vector2(0, 0),
+		Vector2(wall_size.x, 0),
+		Vector2(wall_size.x, wall_size.y),
+		Vector2(0, wall_size.y)
+	])
+	debug_visual.color = Color(1, 0, 0, 0.3)  # Semi-transparent red
+	wall.add_child(debug_visual)
+
 	return wall
 
 func create_corridor(room1, room2):
