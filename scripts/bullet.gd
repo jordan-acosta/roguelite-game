@@ -4,6 +4,8 @@ extends Area2D
 var speed = 400.0
 var direction = Vector2.ZERO
 var damage = 10
+var lifetime = 5.0  # Bullet will auto-destroy after 5 seconds
+var time_alive = 0.0
 
 func _ready():
 	# Connect collision signal
@@ -12,6 +14,11 @@ func _ready():
 func _physics_process(delta):
 	# Move bullet in direction
 	position += direction * speed * delta
+
+	# Track lifetime
+	time_alive += delta
+	if time_alive >= lifetime:
+		queue_free()
 
 func _on_body_entered(body):
 	# Check if hit a wall

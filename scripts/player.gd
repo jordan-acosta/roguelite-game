@@ -54,7 +54,7 @@ func _physics_process(delta):
 func spawn_bullet(direction: Vector2):
 	var bullet = bullet_scene.instantiate()
 	bullet.position = position
-	bullet.direction = direction
+	bullet.direction = direction.normalized()  # Normalize direction for consistent speed
 	get_parent().add_child(bullet)
 
 # Take damage
