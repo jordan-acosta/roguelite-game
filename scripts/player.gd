@@ -6,6 +6,11 @@ var current_health = 100
 var speed = 200.0
 var damage = 10
 
+# Shooting
+var shoot_timer = 0.0
+var shoot_cooldown = 0.5
+var bullet_scene = preload("res://scenes/bullet.tscn")
+
 # Movement
 func _physics_process(delta):
 	# Get input direction
@@ -33,6 +38,24 @@ func _physics_process(delta):
 	# Apply movement
 	velocity = direction * speed
 	move_and_slide()
+
+	# Handle shooting
+	if touch_controls:
+		var shoot_dir = touch_controls.get_shoot_direction()
+		if shoot_dir.length() > 0 and shoot_timer <= 0:
+			spawn_bullet(shoot_dir)
+			shoot_timer = shoot_cooldown
+
+	# Update shoot timer
+	if shoot_timer > 0:
+		shoot_timer -= delta
+
+# Spawn bullet
+func spawn_bullet(direction: Vector2):
+	var bullet = bullet_scene.instantiate()
+	bullet.position = position
+	bullet.direction = direction
+	get_parent().add_child(bullet)
 
 # Take damage
 func take_damage(amount):
