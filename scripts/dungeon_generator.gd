@@ -52,34 +52,43 @@ func create_room(pos, size):
 	var wall_thickness = 4
 
 	# Top wall
-	var top_wall = ColorRect.new()
-	top_wall.position = Vector2(0, 0)
-	top_wall.size = Vector2(size.x, wall_thickness)
-	top_wall.color = wall_color
+	var top_wall = create_wall(Vector2(0, 0), Vector2(size.x, wall_thickness))
 	room.add_child(top_wall)
 
 	# Bottom wall
-	var bottom_wall = ColorRect.new()
-	bottom_wall.position = Vector2(0, size.y - wall_thickness)
-	bottom_wall.size = Vector2(size.x, wall_thickness)
-	bottom_wall.color = wall_color
+	var bottom_wall = create_wall(Vector2(0, size.y - wall_thickness), Vector2(size.x, wall_thickness))
 	room.add_child(bottom_wall)
 
 	# Left wall
-	var left_wall = ColorRect.new()
-	left_wall.position = Vector2(0, 0)
-	left_wall.size = Vector2(wall_thickness, size.y)
-	left_wall.color = wall_color
+	var left_wall = create_wall(Vector2(0, 0), Vector2(wall_thickness, size.y))
 	room.add_child(left_wall)
 
 	# Right wall
-	var right_wall = ColorRect.new()
-	right_wall.position = Vector2(size.x - wall_thickness, 0)
-	right_wall.size = Vector2(wall_thickness, size.y)
-	right_wall.color = wall_color
+	var right_wall = create_wall(Vector2(size.x - wall_thickness, 0), Vector2(wall_thickness, size.y))
 	room.add_child(right_wall)
 
 	return room
+
+func create_wall(pos, wall_size):
+	# Create a StaticBody2D for collision
+	var wall = StaticBody2D.new()
+	wall.position = pos
+
+	# Add visual representation
+	var visual = ColorRect.new()
+	visual.size = wall_size
+	visual.color = wall_color
+	wall.add_child(visual)
+
+	# Add collision shape
+	var collision = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = wall_size
+	collision.shape = shape
+	collision.position = wall_size / 2  # Center the collision shape
+	wall.add_child(collision)
+
+	return wall
 
 func create_corridor(room1, room2):
 	var corridor = ColorRect.new()
