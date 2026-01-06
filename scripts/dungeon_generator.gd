@@ -1,132 +1,147 @@
 extends Node2D
 
-# Dungeon settings
-var room_count = 6  # Reduced for clearer layout
-var grid_cols = 3
-var grid_rows = 2
-var room_size = Vector2(400, 300)
-var corridor_width = 120
-var spacing = 100  # Gap between rooms for corridors
+# Grid-based dungeon generation
+var cell_size = 32  # Match player character size
+var grid_width = 120  # Cells (3840 pixels)
+var grid_height = 80  # Cells (2560 pixels)
+var map = []  # 2D array: 0 = floor, 1 = wall
 
-# Colors for simple visualization
-var floor_color = Color(0.3, 0.3, 0.3)
-var wall_color = Color(0.15, 0.15, 0.15)
+# Colors
+var background_color = Color(1, 1, 1)  # White background
+var wall_color = Color(0.5, 0.5, 0.5)  # Gray walls
+var floor_color = Color(0.9, 0.9, 0.9)  # Light gray floor
 
-# Room data
+# Room generation settings
+var min_room_size = 5
+var max_room_size = 15
+var num_rooms = 20
+
 var rooms = []
 
 func _ready():
 	generate_dungeon()
 
 func generate_dungeon():
-	# Clear existing rooms
+	# Clear existing
 	for child in get_children():
 		child.queue_free()
 	rooms.clear()
 
-	# Create rooms in a grid layout (no overlap possible)
-	for row in range(grid_rows):
-		for col in range(grid_cols):
-			var room_x = col * (room_size.x + spacing) + 50
-			var room_y = row * (room_size.y + spacing) + 50
-			var room = create_room(Vector2(room_x, room_y), room_size)
-			rooms.append(room)
+	# Create white background
+	var background = ColorRect.new()
+	background.position = Vector2(0, 0)
+	background.size = Vector2(grid_width * cell_size, grid_height * cell_size)
+	background.color = background_color
+	background.z_index = -100
+	add_child(background)
 
-	# Connect each room to the room on its right
-	for row in range(grid_rows):
-		for col in range(grid_cols - 1):
-			var room1 = rooms[row * grid_cols + col]
-			var room2 = rooms[row * grid_cols + col + 1]
-			create_horizontal_corridor(room1, room2)
+	# Initialize map with all walls
+	map = []
+	for y in range(grid_height):
+		var row = []
+		for x in range(grid_width):
+			row.append(1)  # 1 = wall
+		map.append(row)
 
-	# Connect each room to the room below it
-	for row in range(grid_rows - 1):
-		for col in range(grid_cols):
-			var room1 = rooms[row * grid_cols + col]
-			var room2 = rooms[(row + 1) * grid_cols + col]
-			create_vertical_corridor(room1, room2)
+	# Generate rooms
+	for i in range(num_rooms):
+		var room_w = randi() % (max_room_size - min_room_size) + min_room_size
+		var room_h = randi() % (max_room_size - min_room_size) + min_room_size
+		var room_x = randi() % (grid_width - room_w - 2) + 1
+		var room_y = randi() % (grid_height - room_h - 2) + 1
 
-func create_room(pos, size):
-	var room = Node2D.new()
-	room.position = pos
-	add_child(room)
+		var new_room = {"x": room_x, "y": room_y, "w": room_w, "h": room_h}
 
-	# Add floor visual
-	var floor = ColorRect.new()
-	floor.size = size
-	floor.color = floor_color
-	room.add_child(floor)
+		# Check if room overlaps with existing rooms
+		var overlaps = false
+		for room in rooms:
+			if rooms_overlap(new_room, room):
+				overlaps = true
+				break
 
-	# Add walls (4 pixel thick, solid - no doors needed with external corridors)
-	var wall_thickness = 4
+		if not overlaps:
+			carve_room(new_room)
 
-	# Top wall
-	create_wall(room, Vector2(0, 0), Vector2(size.x, wall_thickness))
-	# Bottom wall
-	create_wall(room, Vector2(0, size.y - wall_thickness), Vector2(size.x, wall_thickness))
-	# Left wall
-	create_wall(room, Vector2(0, 0), Vector2(wall_thickness, size.y))
-	# Right wall
-	create_wall(room, Vector2(size.x - wall_thickness, 0), Vector2(wall_thickness, size.y))
+			# Connect to previous room with corridor
+			if rooms.size() > 0:
+				var prev_room = rooms[rooms.size() - 1]
+				carve_corridor(prev_room, new_room)
 
-	room.set_meta("room_size", size)
-	rooms.append(room)
+			rooms.append(new_room)
 
-	return room
+	# Render the map
+	render_map()
 
-func create_wall(parent, pos, wall_size):
+func rooms_overlap(room1, room2):
+	return not (room1["x"] + room1["w"] < room2["x"] or
+				room1["x"] > room2["x"] + room2["w"] or
+				room1["y"] + room1["h"] < room2["y"] or
+				room1["y"] > room2["y"] + room2["h"])
+
+func carve_room(room):
+	for y in range(room["y"], room["y"] + room["h"]):
+		for x in range(room["x"], room["x"] + room["w"]):
+			map[y][x] = 0  # 0 = floor
+
+func carve_corridor(room1, room2):
+	# Get centers
+	var x1 = room1["x"] + room1["w"] / 2
+	var y1 = room1["y"] + room1["h"] / 2
+	var x2 = room2["x"] + room2["w"] / 2
+	var y2 = room2["y"] + room2["h"] / 2
+
+	# Carve horizontal then vertical corridor
+	if randi() % 2 == 0:
+		# Horizontal first
+		for x in range(min(x1, x2), max(x1, x2) + 1):
+			if y1 >= 0 and y1 < grid_height and x >= 0 and x < grid_width:
+				map[y1][x] = 0
+		# Then vertical
+		for y in range(min(y1, y2), max(y1, y2) + 1):
+			if y >= 0 and y < grid_height and x2 >= 0 and x2 < grid_width:
+				map[y][x2] = 0
+	else:
+		# Vertical first
+		for y in range(min(y1, y2), max(y1, y2) + 1):
+			if y >= 0 and y < grid_height and x1 >= 0 and x1 < grid_width:
+				map[y][x1] = 0
+		# Then horizontal
+		for x in range(min(x1, x2), max(x1, x2) + 1):
+			if y2 >= 0 and y2 < grid_height and x >= 0 and x < grid_width:
+				map[y2][x] = 0
+
+func render_map():
+	# Render only wall cells as gray squares with collision
+	for y in range(grid_height):
+		for x in range(grid_width):
+			if map[y][x] == 1:  # Wall
+				create_wall_tile(x, y)
+
+func create_wall_tile(grid_x, grid_y):
 	var wall = StaticBody2D.new()
-	wall.position = pos
-	parent.add_child(wall)
+	wall.position = Vector2(grid_x * cell_size, grid_y * cell_size)
+	add_child(wall)
 
-	# Visual
-	var visual = Polygon2D.new()
-	visual.polygon = PackedVector2Array([
-		Vector2(0, 0),
-		Vector2(wall_size.x, 0),
-		Vector2(wall_size.x, wall_size.y),
-		Vector2(0, wall_size.y)
-	])
+	# Visual - gray square
+	var visual = ColorRect.new()
+	visual.size = Vector2(cell_size, cell_size)
 	visual.color = wall_color
 	wall.add_child(visual)
 
 	# Collision
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = wall_size
+	shape.size = Vector2(cell_size, cell_size)
 	collision.shape = shape
-	collision.position = wall_size / 2
+	collision.position = Vector2(cell_size / 2, cell_size / 2)
 	wall.add_child(collision)
-
-func create_horizontal_corridor(room1, room2):
-	# Corridor connects right edge of room1 to left edge of room2
-	var room1_size = room1.get_meta("room_size")
-	var corridor_x = room1.position.x + room1_size.x
-	var corridor_y = room1.position.y + room1_size.y / 2 - corridor_width / 2
-	var corridor_length = room2.position.x - corridor_x
-
-	var corridor = ColorRect.new()
-	corridor.position = Vector2(corridor_x, corridor_y)
-	corridor.size = Vector2(corridor_length, corridor_width)
-	corridor.color = floor_color
-	add_child(corridor)
-
-func create_vertical_corridor(room1, room2):
-	# Corridor connects bottom edge of room1 to top edge of room2
-	var room1_size = room1.get_meta("room_size")
-	var corridor_x = room1.position.x + room1_size.x / 2 - corridor_width / 2
-	var corridor_y = room1.position.y + room1_size.y
-	var corridor_length = room2.position.y - corridor_y
-
-	var corridor = ColorRect.new()
-	corridor.position = Vector2(corridor_x, corridor_y)
-	corridor.size = Vector2(corridor_width, corridor_length)
-	corridor.color = floor_color
-	add_child(corridor)
 
 func get_spawn_position():
 	# Spawn in center of first room
 	if rooms.size() > 0:
-		var room_size = rooms[0].get_meta("room_size")
-		return rooms[0].position + room_size / 2
-	return Vector2(640, 360)
+		var room = rooms[0]
+		return Vector2(
+			(room["x"] + room["w"] / 2) * cell_size,
+			(room["y"] + room["h"] / 2) * cell_size
+		)
+	return Vector2(cell_size * 10, cell_size * 10)
