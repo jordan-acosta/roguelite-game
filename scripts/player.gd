@@ -11,6 +11,12 @@ func _physics_process(delta):
 	# Get input direction
 	var direction = Vector2.ZERO
 
+	# Check for touch controls first
+	var touch_controls = get_tree().get_first_node_in_group("touch_controls")
+	if touch_controls:
+		direction = touch_controls.get_direction()
+
+	# Keyboard input (overrides touch if both are used)
 	if Input.is_action_pressed("move_right"):
 		direction.x += 1
 	if Input.is_action_pressed("move_left"):
@@ -21,7 +27,8 @@ func _physics_process(delta):
 		direction.y -= 1
 
 	# Normalize diagonal movement
-	direction = direction.normalized()
+	if direction.length() > 0:
+		direction = direction.normalized()
 
 	# Apply movement
 	velocity = direction * speed

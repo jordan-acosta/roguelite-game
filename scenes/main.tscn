@@ -1,15 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8hn87x0lqixl"]
+[gd_scene load_steps=5 format=3 uid="uid://c8hn87x0lqixl"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/dungeon_generator.gd" id="2_dungeon"]
 [ext_resource type="PackedScene" uid="uid://dvy2nho0gbnuw" path="res://scenes/player.tscn" id="3_player"]
 [ext_resource type="PackedScene" uid="uid://cg8qvtb6k5rh6" path="res://scenes/ui.tscn" id="4_ui"]
+[ext_resource type="PackedScene" uid="uid://bpwqy8x2fn3mt" path="res://scenes/touch_controls.tscn" id="5_touch"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(640, 360)
 
 [node name="DungeonGenerator" type="Node2D" parent="."]
 script = ExtResource("2_dungeon")
@@ -18,3 +16,5 @@ script = ExtResource("2_dungeon")
 position = Vector2(640, 360)
 
 [node name="UI" parent="." instance=ExtResource("4_ui")]
+
+[node name="TouchControls" parent="." instance=ExtResource("5_touch")]
