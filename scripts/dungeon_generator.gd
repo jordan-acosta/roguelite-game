@@ -22,7 +22,7 @@ func generate_dungeon():
 		child.queue_free()
 	rooms.clear()
 
-	# Generate rooms
+	# Generate rooms with door tracking
 	for i in range(room_count):
 		var room_size = Vector2(
 			randf_range(room_min_size.x, room_max_size.x),
@@ -34,15 +34,19 @@ func generate_dungeon():
 			randf_range(0, 1080 - room_size.y)
 		)
 
-		var room = create_room(room_pos, room_size)
+		var room = create_room_container(room_pos, room_size)
 		rooms.append(room)
 
-	# Connect rooms with corridors (simple implementation)
+	# Connect rooms with corridors and mark door positions
 	for i in range(rooms.size() - 1):
 		create_corridor(rooms[i], rooms[i + 1])
 
-func create_room(pos, size):
-	# Use Node2D as room container for proper physics hierarchy
+	# Add walls with doors to all rooms
+	for room in rooms:
+		add_walls_to_room(room)
+
+func create_room_container(pos, size):
+	# Create room container without walls (walls added later)
 	var room = Node2D.new()
 	room.position = pos
 	add_child(room)
@@ -53,29 +57,83 @@ func create_room(pos, size):
 	floor.color = floor_color
 	room.add_child(floor)
 
-	# Add walls
-	var wall_thickness = 4
-
-	# Top wall
-	var top_wall = create_wall(Vector2(0, 0), Vector2(size.x, wall_thickness))
-	room.add_child(top_wall)
-
-	# Bottom wall
-	var bottom_wall = create_wall(Vector2(0, size.y - wall_thickness), Vector2(size.x, wall_thickness))
-	room.add_child(bottom_wall)
-
-	# Left wall
-	var left_wall = create_wall(Vector2(0, 0), Vector2(wall_thickness, size.y))
-	room.add_child(left_wall)
-
-	# Right wall
-	var right_wall = create_wall(Vector2(size.x - wall_thickness, 0), Vector2(wall_thickness, size.y))
-	room.add_child(right_wall)
-
-	# Store room data for spawn position calculation
+	# Store room data
 	room.set_meta("room_size", size)
+	room.set_meta("doors", [])  # Track door positions
 
 	return room
+
+func add_walls_to_room(room):
+	var size = room.get_meta("room_size")
+	var doors = room.get_meta("doors")
+	var wall_thickness = 4
+	var door_width = 80
+
+	# Top wall
+	create_wall_with_doors(room, Vector2(0, 0), Vector2(size.x, wall_thickness), "top", doors, door_width)
+
+	# Bottom wall
+	create_wall_with_doors(room, Vector2(0, size.y - wall_thickness), Vector2(size.x, wall_thickness), "bottom", doors, door_width)
+
+	# Left wall
+	create_wall_with_doors(room, Vector2(0, 0), Vector2(wall_thickness, size.y), "left", doors, door_width)
+
+	# Right wall
+	create_wall_with_doors(room, Vector2(size.x - wall_thickness, 0), Vector2(wall_thickness, size.y), "right", doors, door_width)
+
+func create_wall_with_doors(room, pos, wall_size, side, doors, door_width):
+	# Check if this wall has any doors
+	var doors_on_this_side = []
+	for door in doors:
+		if door.side == side:
+			doors_on_this_side.append(door.position)
+
+	if doors_on_this_side.size() == 0:
+		# No doors, create solid wall
+		var wall = create_wall(pos, wall_size)
+		room.add_child(wall)
+	else:
+		# Create wall segments with gaps for doors
+		if side == "top" or side == "bottom":
+			# Horizontal wall
+			var segments = get_wall_segments(0, wall_size.x, doors_on_this_side, door_width)
+			for segment in segments:
+				var segment_pos = Vector2(pos.x + segment.start, pos.y)
+				var segment_size = Vector2(segment.end - segment.start, wall_size.y)
+				var wall = create_wall(segment_pos, segment_size)
+				room.add_child(wall)
+		else:
+			# Vertical wall
+			var segments = get_wall_segments(0, wall_size.y, doors_on_this_side, door_width)
+			for segment in segments:
+				var segment_pos = Vector2(pos.x, pos.y + segment.start)
+				var segment_size = Vector2(wall_size.x, segment.end - segment.start)
+				var wall = create_wall(segment_pos, segment_size)
+				room.add_child(wall)
+
+func get_wall_segments(wall_start, wall_end, door_positions, door_width):
+	# Calculate wall segments around door openings
+	var segments = []
+	var current_pos = wall_start
+
+	# Sort door positions
+	door_positions.sort()
+
+	for door_pos in door_positions:
+		var door_start = door_pos - door_width / 2
+		var door_end = door_pos + door_width / 2
+
+		# Add segment before door if there's space
+		if current_pos < door_start:
+			segments.append({"start": current_pos, "end": door_start})
+
+		current_pos = door_end
+
+	# Add final segment after last door
+	if current_pos < wall_end:
+		segments.append({"start": current_pos, "end": wall_end})
+
+	return segments
 
 func create_wall(pos, wall_size):
 	# Create a StaticBody2D for collision
@@ -102,15 +160,32 @@ func create_wall(pos, wall_size):
 	return wall
 
 func create_corridor(room1, room2):
-	var corridor = ColorRect.new()
-
-	# Simple horizontal corridor
 	var room1_size = room1.get_meta("room_size")
 	var room2_size = room2.get_meta("room_size")
 	var start = room1.position + room1_size / 2
 	var end = room2.position + room2_size / 2
 
 	var corridor_width = 40
+
+	# Determine which room is on the left and which is on the right
+	var left_room = room1 if start.x < end.x else room2
+	var right_room = room2 if start.x < end.x else room1
+	var left_room_size = left_room.get_meta("room_size")
+	var right_room_size = right_room.get_meta("room_size")
+
+	# Add doors to the rooms
+	# Left room gets a door on the right side
+	var left_room_doors = left_room.get_meta("doors")
+	left_room_doors.append({"side": "right", "position": left_room_size.y / 2})
+	left_room.set_meta("doors", left_room_doors)
+
+	# Right room gets a door on the left side
+	var right_room_doors = right_room.get_meta("doors")
+	right_room_doors.append({"side": "left", "position": right_room_size.y / 2})
+	right_room.set_meta("doors", right_room_doors)
+
+	# Create corridor visual
+	var corridor = ColorRect.new()
 	var corridor_pos = Vector2(min(start.x, end.x), start.y - corridor_width / 2)
 	var corridor_size = Vector2(abs(end.x - start.x), corridor_width)
 
