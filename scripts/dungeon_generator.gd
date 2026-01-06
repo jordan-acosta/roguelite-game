@@ -115,6 +115,7 @@ func get_wall_segments(wall_start, wall_end, door_positions, door_width):
 	# Calculate wall segments around door openings
 	var segments = []
 	var current_pos = wall_start
+	var min_segment_size = 10  # Prevent tiny wall fragments
 
 	# Sort door positions
 	door_positions.sort()
@@ -123,14 +124,16 @@ func get_wall_segments(wall_start, wall_end, door_positions, door_width):
 		var door_start = door_pos - door_width / 2
 		var door_end = door_pos + door_width / 2
 
-		# Add segment before door if there's space
-		if current_pos < door_start:
+		# Add segment before door if there's enough space
+		var segment_length = door_start - current_pos
+		if segment_length >= min_segment_size:
 			segments.append({"start": current_pos, "end": door_start})
 
 		current_pos = door_end
 
-	# Add final segment after last door
-	if current_pos < wall_end:
+	# Add final segment after last door if there's enough space
+	var final_segment_length = wall_end - current_pos
+	if final_segment_length >= min_segment_size:
 		segments.append({"start": current_pos, "end": wall_end})
 
 	return segments
@@ -159,7 +162,7 @@ func create_wall(pos, wall_size):
 	collision.position = wall_size / 2  # Center the collision shape
 	wall.add_child(collision)
 
-	# DEBUG: Add semi-transparent red overlay showing collision bounds
+	# DEBUG: Add bright yellow overlay showing collision bounds
 	var debug_visual = Polygon2D.new()
 	debug_visual.polygon = PackedVector2Array([
 		Vector2(0, 0),
@@ -167,7 +170,8 @@ func create_wall(pos, wall_size):
 		Vector2(wall_size.x, wall_size.y),
 		Vector2(0, wall_size.y)
 	])
-	debug_visual.color = Color(1, 0, 0, 0.3)  # Semi-transparent red
+	debug_visual.color = Color(1, 1, 0, 0.6)  # Bright yellow, more opaque
+	debug_visual.z_index = 100  # Draw on top of everything
 	wall.add_child(debug_visual)
 
 	return wall
