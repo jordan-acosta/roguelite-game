@@ -104,6 +104,13 @@ func carve_corridor(room1, room2):
 				var x = x2 + dx
 				if y >= 0 and y < grid_height and x >= 0 and x < grid_width:
 					map[y][x] = 0
+		# Carve 2x2 corner to ensure proper junction
+		for dy in range(2):
+			for dx in range(2):
+				var corner_x = x2 + dx
+				var corner_y = y1 + dy
+				if corner_y >= 0 and corner_y < grid_height and corner_x >= 0 and corner_x < grid_width:
+					map[corner_y][corner_x] = 0
 	else:
 		# Vertical first (2 cells wide)
 		for y in range(min(y1, y2), max(y1, y2) + 1):
@@ -117,6 +124,13 @@ func carve_corridor(room1, room2):
 				var y = y2 + dy
 				if y >= 0 and y < grid_height and x >= 0 and x < grid_width:
 					map[y][x] = 0
+		# Carve 2x2 corner to ensure proper junction
+		for dy in range(2):
+			for dx in range(2):
+				var corner_x = x1 + dx
+				var corner_y = y2 + dy
+				if corner_y >= 0 and corner_y < grid_height and corner_x >= 0 and corner_x < grid_width:
+					map[corner_y][corner_x] = 0
 
 func render_map():
 	# Render only wall cells as gray squares with collision
