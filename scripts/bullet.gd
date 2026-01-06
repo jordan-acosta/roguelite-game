@@ -1,7 +1,7 @@
 extends Area2D
 
 # Bullet properties
-var speed = 400.0
+var speed = 320.0  # 10 cells per second (32px per cell)
 var direction = Vector2.ZERO
 var damage = 10
 var lifetime = 5.0  # Bullet will auto-destroy after 5 seconds
