@@ -10,7 +10,7 @@ script = ExtResource("1_player")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 enabled = true
-zoom = Vector2(1, 1)
+zoom = Vector2(1.5, 1.5)
 
 [node name="ColorRect" type="ColorRect" parent="."]
 offset_left = -16.0
