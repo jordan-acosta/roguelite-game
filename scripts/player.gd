@@ -40,14 +40,25 @@ func _physics_process(delta):
 	move_and_slide()
 
 	# Handle shooting
+	var debug_label = get_tree().get_first_node_in_group("ui")
+	if debug_label:
+		debug_label = debug_label.get_node_or_null("Panel/MarginContainer/VBoxContainer/DebugLabel")
+
 	if touch_controls:
 		var shoot_dir = touch_controls.get_shoot_direction()
 		if shoot_dir.length() > 0:
+			if debug_label:
+				debug_label.text = "Shooting: " + str(shoot_dir)
 			print("Shoot direction: ", shoot_dir)
 			if shoot_timer <= 0:
 				print("Spawning bullet at: ", position)
 				spawn_bullet(shoot_dir)
 				shoot_timer = shoot_cooldown
+				if debug_label:
+					debug_label.text = "BULLET FIRED!"
+		else:
+			if debug_label:
+				debug_label.text = "No shoot input"
 
 	# Update shoot timer
 	if shoot_timer > 0:

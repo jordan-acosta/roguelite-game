@@ -3,6 +3,9 @@ extends CanvasLayer
 @onready var health_label = $Panel/MarginContainer/VBoxContainer/HealthLabel
 
 func _ready():
+	# Add to group so player can find us
+	add_to_group("ui")
+
 	# Connect to player's health signal
 	var player = get_tree().get_first_node_in_group("player")
 	if player:

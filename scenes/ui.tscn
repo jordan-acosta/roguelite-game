@@ -29,3 +29,7 @@ layout_mode = 2
 [node name="HealthLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "Health: 100 / 100"
+
+[node name="DebugLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Debug: Ready"
