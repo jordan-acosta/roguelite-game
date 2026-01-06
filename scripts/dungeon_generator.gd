@@ -82,9 +82,12 @@ func create_wall(pos, wall_size):
 	var wall = StaticBody2D.new()
 	wall.position = pos
 
-	# Add visual representation
+	# Add visual representation (ColorRect uses offset properties)
 	var visual = ColorRect.new()
-	visual.size = wall_size
+	visual.offset_left = 0
+	visual.offset_top = 0
+	visual.offset_right = wall_size.x
+	visual.offset_bottom = wall_size.y
 	visual.color = wall_color
 	wall.add_child(visual)
 
