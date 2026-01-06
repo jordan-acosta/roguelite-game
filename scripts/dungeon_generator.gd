@@ -177,19 +177,22 @@ func create_corridor(room1, room2):
 	var right_room_size = right_room.get_meta("room_size")
 
 	# Calculate door positions based on corridor intersection with room walls
+	var door_width = 120  # Match the door width used in add_walls_to_room
+	var door_half = door_width / 2
+
 	# Left room gets a door on the right side where corridor intersects
 	var left_room_doors = left_room.get_meta("doors")
 	var left_door_y = corridor_y - left_room.position.y  # Convert to room-relative Y
-	# Only add door if corridor intersects this room's wall
-	if left_door_y >= 0 and left_door_y <= left_room_size.y:
+	# Only add door if the ENTIRE door fits within the room's vertical bounds
+	if left_door_y >= door_half and left_door_y <= left_room_size.y - door_half:
 		left_room_doors.append({"side": "right", "position": left_door_y})
 		left_room.set_meta("doors", left_room_doors)
 
 	# Right room gets a door on the left side where corridor intersects
 	var right_room_doors = right_room.get_meta("doors")
 	var right_door_y = corridor_y - right_room.position.y  # Convert to room-relative Y
-	# Only add door if corridor intersects this room's wall
-	if right_door_y >= 0 and right_door_y <= right_room_size.y:
+	# Only add door if the ENTIRE door fits within the room's vertical bounds
+	if right_door_y >= door_half and right_door_y <= right_room_size.y - door_half:
 		right_room_doors.append({"side": "left", "position": right_door_y})
 		right_room.set_meta("doors", right_room_doors)
 
