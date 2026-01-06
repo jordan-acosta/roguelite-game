@@ -167,7 +167,7 @@ func create_corridor(room1, room2):
 	var start = room1.position + room1_size / 2
 	var end = room2.position + room2_size / 2
 
-	var corridor_width = 40
+	var corridor_width = 80  # Increased to match door width
 	var corridor_y = start.y  # Corridor at room1's center height
 
 	# Determine which room is on the left and which is on the right
@@ -180,14 +180,18 @@ func create_corridor(room1, room2):
 	# Left room gets a door on the right side where corridor intersects
 	var left_room_doors = left_room.get_meta("doors")
 	var left_door_y = corridor_y - left_room.position.y  # Convert to room-relative Y
-	left_room_doors.append({"side": "right", "position": left_door_y})
-	left_room.set_meta("doors", left_room_doors)
+	# Only add door if corridor intersects this room's wall
+	if left_door_y >= 0 and left_door_y <= left_room_size.y:
+		left_room_doors.append({"side": "right", "position": left_door_y})
+		left_room.set_meta("doors", left_room_doors)
 
 	# Right room gets a door on the left side where corridor intersects
 	var right_room_doors = right_room.get_meta("doors")
 	var right_door_y = corridor_y - right_room.position.y  # Convert to room-relative Y
-	right_room_doors.append({"side": "left", "position": right_door_y})
-	right_room.set_meta("doors", right_room_doors)
+	# Only add door if corridor intersects this room's wall
+	if right_door_y >= 0 and right_door_y <= right_room_size.y:
+		right_room_doors.append({"side": "left", "position": right_door_y})
+		right_room.set_meta("doors", right_room_doors)
 
 	# Create corridor visual
 	var corridor = ColorRect.new()
