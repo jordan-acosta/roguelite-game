@@ -60,11 +60,23 @@ func _input(event):
 			var move_dist = touch_pos.distance_to(move_joystick_center)
 			if move_dist < joystick_radius * 2:
 				move_touch_index = event.index
+				# Set initial direction
+				var drag_pos = touch_pos - move_joystick_center
+				if drag_pos.length() > joystick_radius:
+					drag_pos = drag_pos.normalized() * joystick_radius
+				update_joystick_tip(joystick_tip, drag_pos)
+				current_move_direction = drag_pos.normalized()
 
 			# Check shoot joystick
 			var shoot_dist = touch_pos.distance_to(shoot_joystick_center)
 			if shoot_dist < joystick_radius * 2:
 				shoot_touch_index = event.index
+				# Set initial direction
+				var drag_pos = touch_pos - shoot_joystick_center
+				if drag_pos.length() > joystick_radius:
+					drag_pos = drag_pos.normalized() * joystick_radius
+				update_joystick_tip(shoot_joystick_tip, drag_pos)
+				current_shoot_direction = drag_pos.normalized()
 		else:
 			# Touch released
 			if event.index == move_touch_index:
