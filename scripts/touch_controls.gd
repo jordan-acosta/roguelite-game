@@ -19,7 +19,7 @@ func _ready():
 	# Position joystick at bottom-right of viewport
 	var viewport_size = get_viewport().get_visible_rect().size
 	var joystick_size = 200  # Size of the joystick base
-	var margin = 50  # Margin from edges
+	var margin = 80  # Margin from edges
 
 	# Position at bottom-right
 	joystick_base.offset_left = viewport_size.x - joystick_size - margin
