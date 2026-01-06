@@ -90,25 +90,33 @@ func carve_corridor(room1, room2):
 	var x2 = room2["x"] + room2["w"] / 2
 	var y2 = room2["y"] + room2["h"] / 2
 
-	# Carve horizontal then vertical corridor
+	# Carve 2-cell wide corridors for easier navigation
 	if randi() % 2 == 0:
-		# Horizontal first
+		# Horizontal first (2 cells wide)
 		for x in range(min(x1, x2), max(x1, x2) + 1):
-			if y1 >= 0 and y1 < grid_height and x >= 0 and x < grid_width:
-				map[y1][x] = 0
-		# Then vertical
+			for dy in range(2):  # 2 cells wide
+				var y = y1 + dy
+				if y >= 0 and y < grid_height and x >= 0 and x < grid_width:
+					map[y][x] = 0
+		# Then vertical (2 cells wide)
 		for y in range(min(y1, y2), max(y1, y2) + 1):
-			if y >= 0 and y < grid_height and x2 >= 0 and x2 < grid_width:
-				map[y][x2] = 0
+			for dx in range(2):  # 2 cells wide
+				var x = x2 + dx
+				if y >= 0 and y < grid_height and x >= 0 and x < grid_width:
+					map[y][x] = 0
 	else:
-		# Vertical first
+		# Vertical first (2 cells wide)
 		for y in range(min(y1, y2), max(y1, y2) + 1):
-			if y >= 0 and y < grid_height and x1 >= 0 and x1 < grid_width:
-				map[y][x1] = 0
-		# Then horizontal
+			for dx in range(2):  # 2 cells wide
+				var x = x1 + dx
+				if y >= 0 and y < grid_height and x >= 0 and x < grid_width:
+					map[y][x] = 0
+		# Then horizontal (2 cells wide)
 		for x in range(min(x1, x2), max(x1, x2) + 1):
-			if y2 >= 0 and y2 < grid_height and x >= 0 and x < grid_width:
-				map[y2][x] = 0
+			for dy in range(2):  # 2 cells wide
+				var y = y2 + dy
+				if y >= 0 and y < grid_height and x >= 0 and x < grid_width:
+					map[y][x] = 0
 
 func render_map():
 	# Render only wall cells as gray squares with collision
