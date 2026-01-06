@@ -140,16 +140,18 @@ func create_wall(pos, wall_size):
 	var wall = StaticBody2D.new()
 	wall.position = pos
 
-	# Add visual representation (ColorRect uses offset properties)
-	var visual = ColorRect.new()
-	visual.offset_left = 0
-	visual.offset_top = 0
-	visual.offset_right = wall_size.x
-	visual.offset_bottom = wall_size.y
+	# Add visual representation using Polygon2D (proper Node2D)
+	var visual = Polygon2D.new()
+	visual.polygon = PackedVector2Array([
+		Vector2(0, 0),
+		Vector2(wall_size.x, 0),
+		Vector2(wall_size.x, wall_size.y),
+		Vector2(0, wall_size.y)
+	])
 	visual.color = wall_color
 	wall.add_child(visual)
 
-	# Add collision shape
+	# Add collision shape at the same coordinates as visual
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
 	shape.size = wall_size
