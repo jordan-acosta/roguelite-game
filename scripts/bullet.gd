@@ -10,10 +10,13 @@ var time_alive = 0.0
 func _ready():
 	# Connect collision signal
 	body_entered.connect(_on_body_entered)
+	print("Bullet created at: ", position, " direction: ", direction)
 
 func _physics_process(delta):
 	# Move bullet in direction
 	position += direction * speed * delta
+	if time_alive < 0.1:  # Only print for first 0.1 seconds
+		print("Bullet at: ", position)
 
 	# Track lifetime
 	time_alive += delta

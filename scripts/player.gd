@@ -42,9 +42,12 @@ func _physics_process(delta):
 	# Handle shooting
 	if touch_controls:
 		var shoot_dir = touch_controls.get_shoot_direction()
-		if shoot_dir.length() > 0 and shoot_timer <= 0:
-			spawn_bullet(shoot_dir)
-			shoot_timer = shoot_cooldown
+		if shoot_dir.length() > 0:
+			print("Shoot direction: ", shoot_dir)
+			if shoot_timer <= 0:
+				print("Spawning bullet at: ", position)
+				spawn_bullet(shoot_dir)
+				shoot_timer = shoot_cooldown
 
 	# Update shoot timer
 	if shoot_timer > 0:
