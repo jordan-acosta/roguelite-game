@@ -42,11 +42,16 @@ func generate_dungeon():
 		create_corridor(rooms[i], rooms[i + 1])
 
 func create_room(pos, size):
-	var room = ColorRect.new()
+	# Use Node2D as room container for proper physics hierarchy
+	var room = Node2D.new()
 	room.position = pos
-	room.size = size
-	room.color = floor_color
 	add_child(room)
+
+	# Add floor visual
+	var floor = ColorRect.new()
+	floor.size = size
+	floor.color = floor_color
+	room.add_child(floor)
 
 	# Add walls
 	var wall_thickness = 4
@@ -66,6 +71,9 @@ func create_room(pos, size):
 	# Right wall
 	var right_wall = create_wall(Vector2(size.x - wall_thickness, 0), Vector2(wall_thickness, size.y))
 	room.add_child(right_wall)
+
+	# Store room data for spawn position calculation
+	room.set_meta("room_size", size)
 
 	return room
 
@@ -94,8 +102,10 @@ func create_corridor(room1, room2):
 	var corridor = ColorRect.new()
 
 	# Simple horizontal corridor
-	var start = room1.position + room1.size / 2
-	var end = room2.position + room2.size / 2
+	var room1_size = room1.get_meta("room_size")
+	var room2_size = room2.get_meta("room_size")
+	var start = room1.position + room1_size / 2
+	var end = room2.position + room2_size / 2
 
 	var corridor_width = 40
 	var corridor_pos = Vector2(min(start.x, end.x), start.y - corridor_width / 2)
@@ -109,5 +119,6 @@ func create_corridor(room1, room2):
 func get_spawn_position():
 	# Return the center of the first room as spawn position
 	if rooms.size() > 0:
-		return rooms[0].position + rooms[0].size / 2
+		var room_size = rooms[0].get_meta("room_size")
+		return rooms[0].position + room_size / 2
 	return Vector2(640, 360)
