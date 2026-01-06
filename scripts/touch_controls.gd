@@ -128,14 +128,17 @@ func _input(event):
 
 			# Check shoot joystick
 			var shoot_dist = touch_pos.distance_to(shoot_joystick_center)
+			print("Touch at: ", touch_pos, " Shoot center: ", shoot_joystick_center, " Distance: ", shoot_dist)
 			if shoot_dist < joystick_radius * 2:
 				shoot_touch_index = event.index
+				print("SHOOT JOYSTICK ACTIVATED!")
 				# Set initial direction
 				var drag_pos = touch_pos - shoot_joystick_center
 				if drag_pos.length() > joystick_radius:
 					drag_pos = drag_pos.normalized() * joystick_radius
 				update_joystick_tip(shoot_joystick_tip, drag_pos)
 				current_shoot_direction = drag_pos.normalized()
+				print("Shoot direction set to: ", current_shoot_direction)
 		else:
 			# Touch released
 			if event.index == move_touch_index:
