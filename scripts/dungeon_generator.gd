@@ -67,7 +67,7 @@ func add_walls_to_room(room):
 	var size = room.get_meta("room_size")
 	var doors = room.get_meta("doors")
 	var wall_thickness = 4
-	var door_width = 80
+	var door_width = 120  # Increased for easier navigation
 
 	# Top wall
 	create_wall_with_doors(room, Vector2(0, 0), Vector2(size.x, wall_thickness), "top", doors, door_width)
@@ -167,7 +167,7 @@ func create_corridor(room1, room2):
 	var start = room1.position + room1_size / 2
 	var end = room2.position + room2_size / 2
 
-	var corridor_width = 80  # Increased to match door width
+	var corridor_width = 120  # Match door width for consistent navigation
 	var corridor_y = start.y  # Corridor at room1's center height
 
 	# Determine which room is on the left and which is on the right
