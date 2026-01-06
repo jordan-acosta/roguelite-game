@@ -16,6 +16,17 @@ func _ready():
 	# Always show for now (we'll hide on desktop later)
 	show()
 
+	# Position joystick at bottom-right of viewport
+	var viewport_size = get_viewport().get_visible_rect().size
+	var joystick_size = 160  # Size of the joystick base
+	var margin = 20  # Margin from edges
+
+	# Position at bottom-right
+	joystick_base.offset_left = viewport_size.x - joystick_size - margin
+	joystick_base.offset_top = viewport_size.y - joystick_size - margin
+	joystick_base.offset_right = viewport_size.x - margin
+	joystick_base.offset_bottom = viewport_size.y - margin
+
 	# Calculate joystick center from ColorRect offsets
 	var base_width = joystick_base.offset_right - joystick_base.offset_left
 	var base_height = joystick_base.offset_bottom - joystick_base.offset_top
