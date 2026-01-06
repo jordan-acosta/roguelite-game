@@ -51,8 +51,67 @@ func _input(event):
 	if not visible:
 		return
 
+	# Handle mouse input (for desktop testing)
+	if event is InputEventMouseButton:
+		if event.pressed:
+			var mouse_pos = event.position
+
+			# Check move joystick
+			var move_dist = mouse_pos.distance_to(move_joystick_center)
+			if move_dist < joystick_radius * 2:
+				move_touch_index = 999  # Use 999 for mouse
+				# Set initial direction
+				var drag_pos = mouse_pos - move_joystick_center
+				if drag_pos.length() > joystick_radius:
+					drag_pos = drag_pos.normalized() * joystick_radius
+				update_joystick_tip(joystick_tip, drag_pos)
+				current_move_direction = drag_pos.normalized()
+
+			# Check shoot joystick
+			var shoot_dist = mouse_pos.distance_to(shoot_joystick_center)
+			if shoot_dist < joystick_radius * 2:
+				shoot_touch_index = 998  # Use 998 for mouse
+				# Set initial direction
+				var drag_pos = mouse_pos - shoot_joystick_center
+				if drag_pos.length() > joystick_radius:
+					drag_pos = drag_pos.normalized() * joystick_radius
+				update_joystick_tip(shoot_joystick_tip, drag_pos)
+				current_shoot_direction = drag_pos.normalized()
+		else:
+			# Mouse released
+			if move_touch_index == 999:
+				move_touch_index = -1
+				current_move_direction = Vector2.ZERO
+				reset_joystick(joystick_tip)
+
+			if shoot_touch_index == 998:
+				shoot_touch_index = -1
+				current_shoot_direction = Vector2.ZERO
+				reset_joystick(shoot_joystick_tip)
+
+	elif event is InputEventMouseMotion:
+		# Handle move joystick drag
+		if move_touch_index == 999:
+			var drag_pos = event.position - move_joystick_center
+			var distance = drag_pos.length()
+			if distance > joystick_radius:
+				drag_pos = drag_pos.normalized() * joystick_radius
+
+			update_joystick_tip(joystick_tip, drag_pos)
+			current_move_direction = drag_pos.normalized()
+
+		# Handle shoot joystick drag
+		if shoot_touch_index == 998:
+			var drag_pos = event.position - shoot_joystick_center
+			var distance = drag_pos.length()
+			if distance > joystick_radius:
+				drag_pos = drag_pos.normalized() * joystick_radius
+
+			update_joystick_tip(shoot_joystick_tip, drag_pos)
+			current_shoot_direction = drag_pos.normalized()
+
 	# Handle touch input
-	if event is InputEventScreenTouch:
+	elif event is InputEventScreenTouch:
 		if event.pressed:
 			var touch_pos = event.position
 
