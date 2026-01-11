@@ -2,31 +2,37 @@ extends Node2D
 
 const BulletScript = preload("res://scripts/bullet.gd")
 
-@onready var dungeon = $DungeonGenerator
+@onready var boss = $Boss
 @onready var player = $Player
+@onready var boss_health_label = $BossUI/Panel/BossHealthLabel
 
 var fire_cooldown: float = 0.0
-const FIRE_RATE: float = 0.1  # Seconds between shots
+const FIRE_RATE: float = 0.1
 
 func _ready():
-	# Wait for dungeon to generate
-	await get_tree().create_timer(0.1).timeout
-
-	# Position player at spawn point
-	if dungeon:
-		player.position = dungeon.get_spawn_position()
-
-		# Connect exit trigger
-		var exit_trigger = dungeon.get_node_or_null("ExitTrigger")
-		if exit_trigger:
-			exit_trigger.player_entered_exit.connect(_on_player_reached_exit)
-
-	# Add player to group for UI to find
+	# Setup player
 	player.add_to_group("player")
+	player.position = Vector2(400, 500)
 
-func _on_player_reached_exit():
-	# Transition to boss room
-	get_tree().change_scene_to_file("res://scenes/boss_room.tscn")
+	# Connect boss signals
+	boss.defeated.connect(_on_boss_defeated)
+	boss.health_changed.connect(_on_boss_health_changed)
+
+	# Initialize boss health display
+	_on_boss_health_changed(boss.current_health, boss.max_health)
+
+func _on_boss_defeated():
+	# Determine next scene
+	if GameState.advance_level():
+		# More levels to go - return to dungeon
+		get_tree().change_scene_to_file("res://scenes/main.tscn")
+	else:
+		# Victory!
+		get_tree().change_scene_to_file("res://scenes/victory.tscn")
+
+func _on_boss_health_changed(current: int, maximum: int):
+	if boss_health_label:
+		boss_health_label.text = "Boss: %d / %d" % [current, maximum]
 
 func _process(delta):
 	if fire_cooldown > 0:
@@ -46,15 +52,6 @@ func _process(delta):
 	if fire_dir != Vector2.ZERO and fire_cooldown <= 0:
 		fire_bullet(fire_dir.normalized())
 
-func _input(event):
-	# Press R to restart (for testing)
-	if event is InputEventKey and event.pressed and event.keycode == KEY_R:
-		restart_game()
-
-func restart_game():
-	GameState.reset_game()
-	get_tree().reload_current_scene()
-
 func fire_bullet(direction: Vector2):
 	if not player or fire_cooldown > 0:
 		return
@@ -71,7 +68,7 @@ func fire_bullet(direction: Vector2):
 	visual.size = Vector2(16, 16)
 	visual.position = Vector2(-8, -8)
 	visual.color = Color(1, 0, 0)  # Red
-	visual.z_index = 10
+	visual.z_index = 100
 	bullet.add_child(visual)
 
 	# Collision
@@ -83,6 +80,6 @@ func fire_bullet(direction: Vector2):
 
 	# Fire in specified direction
 	bullet.set_script(BulletScript)
-	dungeon.add_child(bullet)
+	add_child(bullet)
 	bullet.direction = direction
 	bullet.damage = player.damage
